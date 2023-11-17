@@ -113,6 +113,15 @@ $cmd_descr{"coverage"}="run code coverage analysis for a checked-out project ver
 
 =pod
 
+=item * L<B<jdfc>|d4j::d4j-jdfc/>
+
+run code coverage analysis for a checked-out project version.
+
+=cut
+$cmd_descr{"jdfc"}="run code coverage analysis for a checked-out project version with jdfc";
+
+=pod
+
 =item * L<B<pids>|d4j::d4j-pids/>
 
 prints a list of all available project ids.

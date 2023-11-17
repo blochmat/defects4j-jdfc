@@ -69,6 +69,11 @@ sub exec_cmd {
     my ($cmd, $descr, $log_ref) = @_;
     print(STDERR substr($descr . '.'x75, 0, 75), " ");
     my $log = `$cmd`; my $ret = $?;
+    #print(STDERR "$log");
+    # Debug
+    # open(my $fh, '>>', 'debug.log') or die "Could not open file. $!";
+    # print $fh "$log\n";
+    # close $fh;
     $$log_ref = $log if defined $log_ref;
     if ($ret!=0) {
         print(STDERR "FAIL\n");
@@ -76,6 +81,12 @@ sub exec_cmd {
         print(STDERR "$log");
         return 0;
     }
+    #print(STDERR "$log");
+    # Debug
+    # open(my $fh, '>>', 'debug.log') or die "Could not open file. $!";
+    # print $fh "$log\n";
+    # close $fh;
+
     print(STDERR "OK\n");
     # Upon success, only print log messages if debugging is enabled
     print(STDERR "Executed command: $cmd\n") if $DEBUG;

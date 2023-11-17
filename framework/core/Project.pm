@@ -791,6 +791,62 @@ sub coverage_instrument {
 
 =pod
 
+=item C<$project-E<gt>jdfc_instrument(instrument_classes)>
+
+Instruments classes listed in F<instrument_classes> for use with jdfc.
+
+=cut
+
+sub jdfc_instrument {
+    @_ == 2 or die $ARG_ERROR;
+    my ($self, $instrument_classes) = @_;
+    my $work_dir = $self->{prog_root};
+
+    -e $instrument_classes or die "Instrument classes file '$instrument_classes' does not exist!";
+    open FH, $instrument_classes;
+    my @classes = ();
+    {
+        $/ = "\n";
+        @classes = <FH>;
+    }
+    close FH;
+
+    die "No classes to instrument found!" if scalar @classes == 0;
+    my @classes_and_inners = ();
+    for (@classes) {
+        s/\./\//g;
+        chomp;
+        push @classes_and_inners, "$_.class";
+        push @classes_and_inners, "$_" . '\$' . "*.class";
+    }
+
+    # Write list of classes to instrument to properties file, which is imported
+    # by the defects4j.build.xml file.
+    my $list = join(",", @classes_and_inners);
+    my $config = {$PROP_INSTRUMENT => $list};
+    Utils::write_config_file("$work_dir/$PROP_FILE", $config);
+
+    # Call ant to do the instrumentation
+    return $self->_ant_call_comp("jdfc.instrument");
+}
+
+=pod
+
+=item C<$project-E<gt>coverage_report(source_dir)>
+
+TODO
+
+=cut
+
+sub jdfc_report {
+    @_ >= 2 or die $ARG_ERROR;
+    my ($self, $source_dir) = @_;
+    return $self->_ant_call_comp("jdfc.report");
+}
+
+
+=pod
+
 =item C<$project-E<gt>coverage_report(source_dir)>
 
 TODO
@@ -1107,7 +1163,7 @@ sub _ant_call {
 
     # Set up environment before running ant
     my $cmd = " cd $self->{prog_root}" .
-              " && $ant_cmd" .
+              " && $ant_cmd -debug -verbose" .
                 " -f $D4J_BUILD_FILE" .
                 " -Dd4j.home=$BASE_DIR" .
                 " -Dd4j.dir.projects=$PROJECTS_DIR" .

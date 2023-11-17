@@ -48,6 +48,7 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
     <!-- Dependencies used by all projects -->
     <property name="junit.jar"  value="${d4j.home}/framework/projects/lib/junit-4.11.jar"/>
     <property name="cobertura.jar" value="${d4j.home}/framework/projects/lib/cobertura-2.0.3.jar"/>
+    <property name="jdfc.jar" value="${d4j.home}/framework/projects/lib/com.jdfc.core-1.0-SNAPSHOT-jar-with-dependencies.jar"/>
 
     <!-- Location of libraries of test generation tool-->
     <property name="d4j.dir.lib.testgen.gen" value="${d4j.home}/framework/lib/test_generation/generation"/>
@@ -66,10 +67,17 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
     <property name="d4j.dir.classes.instrumented" value="${d4j.workdir}/.classes_instrumented"/>
     <!-- Directory of mutated classes-->
     <property name="d4j.dir.classes.mutated" value="${d4j.workdir}/.classes_mutated"/>
-    <!-- Directory of coverage reports-->
-    <property name="d4j.dir.coverage.report" value="${d4j.workdir}" />
     <!-- Data file that holds coverage information-->
     <property name="d4j.file.cobertura.ser" value="cobertura.ser" />
+    <!-- Directory of coverage reports-->
+    <property name="d4j.dir.coverage.report" value="${d4j.workdir}" />
+
+    <!-- Directory of jdfc instrumented classes -->
+    <property name="d4j.dir.classes.jdfc-instrumented" value="${d4j.workdir}/.jdfc_instrumented"/>
+    <!-- Directory of jdfc coverage reports-->
+    <property name="d4j.dir.jdfc.report" value="jdfc-report" />
+    <!-- Data file that holds jdfc coverage information-->
+    <property name="d4j.file.jdfc.ser" value="jdfc.ser" />
 
     <!-- Additional properties such as tests to exclude.
          This property file is automatically generated. -->
@@ -109,9 +117,13 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
                 <!-- Make sure that instrumented classes appear at the beginning of the
                      classpath -->
                 <pathelement location="${d4j.dir.classes.instrumented}" />
+                <pathelement location="${d4j.dir.classes.jdfc-instrumented}" />
                 <pathelement path="${formatter.jar}" />
                 <pathelement path="${cobertura.jar}" />
+                <pathelement path="${jdfc.jar}" />
                 <path refid="d4j.test.classpath"/>
+
+                <pathelement location="~/repos/hub/test-result-listener/target/test-result-listener-1.0-SNAPSHOT.jar"/>
             </classpath>
 
             <sysproperty key="OUTFILE" value="${OUTFILE}"/>
@@ -329,7 +341,7 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
 
     <path id="cobertura.classpath.include" />
 
-    <target name="coverage.instrument" depends="compile,check.classes.uptodate,reset.cobertura.ser" unless="classes.instrumented.uptodate">
+    <target name="coverage.instrument" depends="compile,check.classes.uptodate,reset.cobertura.ser">
         <pathconvert refid="cobertura.classpath" property="cobertura.classpath.property" />
 
         <delete dir="${d4j.dir.classes.instrumented}"/>
@@ -352,6 +364,23 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
         <cobertura-report format="xml" destdir="${d4j.dir.coverage.report}" srcdir="${coverage.src.dir}" />
     </target>
 
+    <target name="jdfc.instrument" depends="compile,check.classes.uptodate">
+        <delete dir="${d4j.dir.classes.jdfc-instrumented}"/>
+        <delete file="${d4j.workdir}/${d4j.file.jdfc.ser}"/>
+        <taskdef resource="Ant.properties" classpath="${jdfc.jar}"/>
+        <jdfc-instrument work="${d4j.workdir}" src="${source.home}" classes="${classes.dir}">
+            <fileset dir="${classes.dir}" includes="${d4j.classes.instrument}" />
+        </jdfc-instrument>
+
+        <!-- Backup instrumented classes and empty data file -->
+        <copy file="${d4j.workdir}/${d4j.properties}" todir="${d4j.dir.classes.jdfc-instrumented}" overwrite="true"/>
+    </target>
+
+    <target name="jdfc.report" depends="compile,check.classes.uptodate">
+        <mkdir dir="${d4j.dir.jdfc.report}" />
+        <taskdef resource="Ant.properties" classpath="${jdfc.jar}"/>
+        <jdfc-report work="${d4j.workdir}" out="${d4j.dir.jdfc.report}" />
+    </target>
 <!--
     Update list of all manual tests to only include relevant tests
 -->

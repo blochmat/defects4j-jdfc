@@ -118,6 +118,49 @@ sub coverage {
 
 =pod
 
+=item C<Coverage::coverage(project_ref, instrument_classes, src_dir, log_file, relevant_tests, [single_test, [merge_with]])>
+
+Measures code coverage for a provided L<Project> reference. F<instrument_classes>
+is the name of a file that lists all the classes which should be instrumented.  F<src_dir>
+provides the root directory of the source code, which is necessary to generate reports.
+
+The test results are written to F<log_file>, and the boolean parameter C<relevant_tests>
+indicates whether only relevant test cases are executed.
+
+If C<single_test> is specified, only that test is run. This is meant to be used
+in conjunction with C<merge_with>, which is the path to another .ser file obtained by
+running coverage. This enables incremental analyses.
+
+=cut
+
+sub jdfc {
+	@_ >= 5 or die $ARG_ERROR;
+	my ($project, $instrument_classes, $src_dir, $log_file, $relevant_tests, $single_test, $merge_with) = @_;
+
+    my $root = $project->{prog_root};
+	my $datafile = "$root/datafile";
+	my $xmlfile  = "$root/$XML_FILE";
+	my $serfile  = "$root/$SER_FILE";
+
+    # Remove stale data file
+    system("rm -f $serfile");
+
+    # Instrument all classes provided
+	$project->jdfc_instrument($instrument_classes) or return undef;
+
+    # Execute test suite
+    if ($relevant_tests) {
+        $project->run_relevant_tests($log_file) or return undef;
+    } else {
+        $project->run_tests($log_file, $single_test) or return undef;
+    }
+
+	# Generate coverage report
+	$project->jdfc_report($src_dir) or die "Could not create coverage report";
+}
+
+=pod
+
 =item C<Coverage::coverage_ext(project, instrument_classes, src_dir, test_dir, include_pattern, log_file)>
 
 Determines code coverage for an external test suite.
