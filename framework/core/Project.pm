@@ -779,6 +779,13 @@ sub coverage_instrument {
         push @classes_and_inners, "$_" . '\$' . "*.class";
     }
 
+    # Remove classes that have already been instrumented
+    my $instrumented_dir = "$work_dir/.classes_instrumented";
+    @classes_and_inners = grep {
+        my $file = "$instrumented_dir/$_";
+        !-e $file;
+    } @classes_and_inners;
+
     # Write list of classes to instrument to properties file, which is imported
     # by the defects4j.build.xml file.
     my $list = join(",", @classes_and_inners);
@@ -819,6 +826,13 @@ sub jdfc_instrument {
         push @classes_and_inners, "$_.class";
         push @classes_and_inners, "$_" . '\$' . "*.class";
     }
+
+    # Remove classes that have already been instrumented
+    my $instrumented_dir = "$work_dir/.jdfc_instrumented";
+    @classes_and_inners = grep {
+        my $file = "$instrumented_dir/$_";
+        !-e $file;
+    } @classes_and_inners;
 
     # Write list of classes to instrument to properties file, which is imported
     # by the defects4j.build.xml file.
