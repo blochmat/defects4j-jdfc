@@ -131,7 +131,6 @@ if (defined $TEST_SUITE) {
 } elsif ($REL_TESTS) {
     # Compile and run only relevant developer-written tests
     $project->compile_tests() or die "Cannot compile test suite!";
-    print("d4j-jdfc: $SCOPE\n");
     $cov_results = Coverage::jdfc($project, $classes, $src_dir, $fail_tests, $REL_TESTS, undef, undef, $SCOPE);
 } else {
     # Compile and run developer-written tests

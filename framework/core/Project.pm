@@ -802,8 +802,6 @@ sub jdfc_instrument {
     my ($self, $instrument_classes, $scope) = @_;
     my $work_dir = $self->{prog_root};
 
-    print("Project: $scope\n");
-
     -e $instrument_classes or die "Instrument classes file '$instrument_classes' does not exist!";
     open FH, $instrument_classes;
     my @classes = ();

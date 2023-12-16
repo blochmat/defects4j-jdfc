@@ -137,7 +137,6 @@ sub jdfc {
 	@_ >= 5 or die $ARG_ERROR;
 	my ($project, $instrument_classes, $src_dir, $log_file, $relevant_tests, $single_test, $merge_with, $scope) = @_;
 
-    print("Coverage: $scope\n");
     my $root = $project->{prog_root};
 	my $datafile = "$root/datafile";
 	my $xmlfile  = "$root/$XML_FILE";
