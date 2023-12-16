@@ -118,7 +118,7 @@ sub coverage {
 
 =pod
 
-=item C<Coverage::coverage(project_ref, instrument_classes, src_dir, log_file, relevant_tests, [single_test, [merge_with]])>
+=item C<Coverage::jdfc(project_ref, instrument_classes, src_dir, log_file, relevant_tests, [single_test, [merge_with]], scope)>
 
 Measures code coverage for a provided L<Project> reference. F<instrument_classes>
 is the name of a file that lists all the classes which should be instrumented.  F<src_dir>
@@ -135,8 +135,9 @@ running coverage. This enables incremental analyses.
 
 sub jdfc {
 	@_ >= 5 or die $ARG_ERROR;
-	my ($project, $instrument_classes, $src_dir, $log_file, $relevant_tests, $single_test, $merge_with) = @_;
+	my ($project, $instrument_classes, $src_dir, $log_file, $relevant_tests, $single_test, $merge_with, $scope) = @_;
 
+    print("Coverage: $scope\n");
     my $root = $project->{prog_root};
 	my $datafile = "$root/datafile";
 	my $xmlfile  = "$root/$XML_FILE";
@@ -146,7 +147,7 @@ sub jdfc {
     system("rm -f $serfile");
 
     # Instrument all classes provided
-	$project->jdfc_instrument($instrument_classes) or return undef;
+	$project->jdfc_instrument($instrument_classes, $scope) or return undef;
 
     # Execute test suite
     if ($relevant_tests) {

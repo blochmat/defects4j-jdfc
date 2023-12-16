@@ -364,11 +364,23 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
         <cobertura-report format="xml" destdir="${d4j.dir.coverage.report}" srcdir="${coverage.src.dir}" />
     </target>
 
-    <target name="jdfc.instrument" depends="compile,check.classes.uptodate">
+    <target name="jdfc.instrument-intra" depends="compile,check.classes.uptodate">
         <delete dir="${d4j.dir.classes.jdfc-instrumented}"/>
         <delete file="${d4j.workdir}/${d4j.file.jdfc.ser}"/>
         <taskdef resource="Ant.properties" classpath="${jdfc.jar}"/>
-        <jdfc-instrument work="${d4j.workdir}" src="${source.home}" classes="${classes.dir}">
+        <jdfc-instrument work="${d4j.workdir}" src="${source.home}" classes="${classes.dir}" scope="intra">
+            <fileset dir="${classes.dir}" includes="${d4j.classes.instrument}" />
+        </jdfc-instrument>
+
+        <!-- Backup instrumented classes and empty data file -->
+        <copy file="${d4j.workdir}/${d4j.properties}" todir="${d4j.dir.classes.jdfc-instrumented}" overwrite="true"/>
+    </target>
+
+    <target name="jdfc.instrument-inter" depends="compile,check.classes.uptodate">
+        <delete dir="${d4j.dir.classes.jdfc-instrumented}"/>
+        <delete file="${d4j.workdir}/${d4j.file.jdfc.ser}"/>
+        <taskdef resource="Ant.properties" classpath="${jdfc.jar}"/>
+        <jdfc-instrument work="${d4j.workdir}" src="${source.home}" classes="${classes.dir}" scope="inter">
             <fileset dir="${classes.dir}" includes="${d4j.classes.instrument}" />
         </jdfc-instrument>
 

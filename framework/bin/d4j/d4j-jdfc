@@ -78,13 +78,23 @@ use Getopt::Std;
 use Pod::Usage;
 
 my %cmd_opts;
-getopts('t:w:rs:i:', \%cmd_opts) or pod2usage( { -verbose => 1, -input => __FILE__} );
+getopts('t:w:rs:i:p:', \%cmd_opts) or pod2usage( { -verbose => 1, -input => __FILE__} );
 
 my $WORK_DIR    = Utils::get_abs_path($cmd_opts{w} // ".");
 my $REL_TESTS   = defined $cmd_opts{r} ? 1 : 0;
 my $SINGLE_TEST = $cmd_opts{t};
 my $TEST_SUITE  = $cmd_opts{s};
 my $INSTRUMENT  = $cmd_opts{i};
+my $SCOPE       = $cmd_opts{p};
+
+if (not defined $SCOPE) {
+    pod2usage( { -verbose => 1, -input => __FILE__} );
+}
+
+if (defined $SCOPE && $SCOPE ne "intra" && $SCOPE ne "inter") {
+    pod2usage( { -verbose => 1, -input => __FILE__} );
+}
+
 if ((defined $SINGLE_TEST || defined $TEST_SUITE) && $REL_TESTS==1) {
     pod2usage( { -verbose => 1, -input => __FILE__} );
 }
@@ -121,11 +131,12 @@ if (defined $TEST_SUITE) {
 } elsif ($REL_TESTS) {
     # Compile and run only relevant developer-written tests
     $project->compile_tests() or die "Cannot compile test suite!";
-    $cov_results = Coverage::jdfc($project, $classes, $src_dir, $fail_tests, $REL_TESTS);
+    print("d4j-jdfc: $SCOPE\n");
+    $cov_results = Coverage::jdfc($project, $classes, $src_dir, $fail_tests, $REL_TESTS, undef, undef, $SCOPE);
 } else {
     # Compile and run developer-written tests
     $project->compile_tests() or die "Cannot compile test suite!";
-    $cov_results = Coverage::jdfc($project, $classes, $src_dir, $fail_tests, undef, $SINGLE_TEST);
+    $cov_results = Coverage::jdfc($project, $classes, $src_dir, $fail_tests, undef, $SINGLE_TEST, undef, $SCOPE);
 }
 defined $cov_results or die "Couldn't obtain coverage results!";
 

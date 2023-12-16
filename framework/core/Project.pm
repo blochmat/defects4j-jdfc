@@ -791,16 +791,18 @@ sub coverage_instrument {
 
 =pod
 
-=item C<$project-E<gt>jdfc_instrument(instrument_classes)>
+=item C<$project-E<gt>jdfc_instrument(instrument_classes, scope)>
 
-Instruments classes listed in F<instrument_classes> for use with jdfc.
+Instruments classes listed in F<instrument_classes, scope> for use with jdfc.
 
 =cut
 
 sub jdfc_instrument {
-    @_ == 2 or die $ARG_ERROR;
-    my ($self, $instrument_classes) = @_;
+    @_ == 3 or die $ARG_ERROR;
+    my ($self, $instrument_classes, $scope) = @_;
     my $work_dir = $self->{prog_root};
+
+    print("Project: $scope\n");
 
     -e $instrument_classes or die "Instrument classes file '$instrument_classes' does not exist!";
     open FH, $instrument_classes;
@@ -827,7 +829,11 @@ sub jdfc_instrument {
     Utils::write_config_file("$work_dir/$PROP_FILE", $config);
 
     # Call ant to do the instrumentation
-    return $self->_ant_call_comp("jdfc.instrument");
+    if ($scope eq "intra") {
+        return $self->_ant_call_comp("jdfc.instrument-intra");
+    } else {
+        return $self->_ant_call_comp("jdfc.instrument-inter");
+    }
 }
 
 =pod
