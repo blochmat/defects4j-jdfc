@@ -44,6 +44,10 @@ Measure code coverage for all classes listed in F<instrument_classes> (optional)
 default, code coverage is measured only for the classes modified by the bug fix. The file
 F<instrument_classes> must contain fully-qualified class names -- one class per line.
 
+=item -p C<intra|inter>
+
+Scope of the analysis (optional). Default is C<intra>. See L<Scope|/"Scope">.
+
 =back
 
 =head1 Test suites
