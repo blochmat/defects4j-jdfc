@@ -391,7 +391,7 @@ project-specific build file ("project_id"/"project_id".build.xml) for the
     <target name="jdfc.report" depends="compile,check.classes.uptodate">
         <mkdir dir="${d4j.dir.jdfc.report}" />
         <taskdef resource="Ant.properties" classpath="${jdfc.jar}"/>
-        <jdfc-report work="${d4j.workdir}" out="${d4j.dir.jdfc.report}" />
+        <jdfc-report work="${d4j.workdir}" out="${d4j.dir.jdfc.report}" xml="true" html="false"/>
     </target>
 <!--
     Update list of all manual tests to only include relevant tests
